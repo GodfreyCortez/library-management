@@ -1,0 +1,12 @@
+{
+  "name": "book-library-manager",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "vite": "^6.2.0"
+  }
+}
