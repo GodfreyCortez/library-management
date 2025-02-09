@@ -1,3 +1,5 @@
+using book_library_manager.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -25,5 +27,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+SeedData.Initialize(RavenDbContext.Store);
 
 app.Run();
