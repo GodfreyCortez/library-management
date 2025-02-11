@@ -38,6 +38,14 @@
                 "run",
                 "dev"
             ]
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Server/Client",
+            "configurations": [".NET Core Launch (web)", "Client"],
+            "preLaunchTask": "${defaultBuildTask}",
+            "stopAll": true,
         }
     ]
 }

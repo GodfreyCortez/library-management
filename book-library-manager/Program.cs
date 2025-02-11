@@ -1,9 +1,12 @@
 using book_library_manager.Models;
+using book_library_manager.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
+builder.Services.AddSingleton<BooksService>();
 
 var app = builder.Build();
 
