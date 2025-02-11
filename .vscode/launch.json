@@ -1,7 +1,6 @@
 {
     "version": "0.2.0",
     "configurations": [
-
         {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
@@ -30,14 +29,10 @@
         {
             "name": "Client",
             "preLaunchTask": "npm: build - book-library-manager-client",
-            "type": "node",
+            "type": "chrome",
             "request": "launch",
-            "cwd": "${workspaceFolder}/book-library-manager-client",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "run",
-                "dev"
-            ]
+            "url": "https://localhost:5174",
+            "cwd": "${workspaceFolder}/book-library-manager-client"
         },
     ],
     "compounds": [

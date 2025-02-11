@@ -1,12 +1,21 @@
 using book_library_manager.Models;
 using book_library_manager.Services;
 
+var MyAllowSpecificOrigins = "AllowSpecificOriginsPolicy";
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSingleton<BooksService>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:5174");
+                      });
+});
 
 var app = builder.Build();
 
@@ -22,7 +31,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
-
+app.UseCors(MyAllowSpecificOrigins);
 app.MapStaticAssets();
 
 app.MapControllerRoute(
