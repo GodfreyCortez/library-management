@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSingleton<BooksService>();
+builder.Services.AddSingleton<OpenLibraryService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -40,5 +41,5 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 SeedData.Initialize(RavenDbContext.Store);
-
+OpenLibraryService olservice = new OpenLibraryService();
 app.Run();

@@ -22,4 +22,14 @@ public class BooksService
 
         return allBooks;
     }
+
+    public async Task CreateBook(Book newBook)
+    {
+        using (IAsyncDocumentSession session = RavenDbContext.Store.OpenAsyncSession())
+        {
+            await session.StoreAsync(newBook);
+            await session.SaveChangesAsync();
+        }
+
+    }
 }

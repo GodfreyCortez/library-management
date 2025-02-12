@@ -24,6 +24,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 import { Book } from "../../types/library/books";
 import React from "react";
+import { StringService } from "../../services/string.service";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -41,8 +42,8 @@ function getComparator<Key extends keyof Book>(
   order: Order,
   orderBy: Key
 ): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
+  a: { [key in Key]: number | string | null },
+  b: { [key in Key]: number | string | null }
 ) => number {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
@@ -58,22 +59,22 @@ interface HeadCell {
 
 const headCells: readonly HeadCell[] = [
   {
-    id: "id",
-    numeric: false,
-    disablePadding: false,
-    label: "UUID",
-  },
-  {
     id: "title",
     numeric: false,
     disablePadding: false,
     label: "Title",
   },
   {
-    id: "author",
+    id: "authors",
     numeric: false,
     disablePadding: false,
     label: "Author",
+  },
+  {
+    id: "firstPublishYear",
+    numeric: false,
+    disablePadding: false,
+    label: "First Year Published",
   },
 ];
 
@@ -265,6 +266,17 @@ export default function EnhancedTable(props: { rows: Book[] }) {
   const visibleRows = React.useMemo(
     () =>
       [...props.rows]
+        .map((book) => {
+          return {
+            ...book,
+            authors: book.authors
+              ? StringService.CombineStringAsList(book.authors)
+              : "No Author",
+            authorKeys: book.authorKeys
+              ? StringService.CombineStringAsList(book.authorKeys)
+              : "",
+          };
+        })
         .sort(getComparator(order, orderBy))
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
     [order, orderBy, page, rowsPerPage, props.rows]
@@ -319,10 +331,10 @@ export default function EnhancedTable(props: { rows: Book[] }) {
                       scope="row"
                       padding="none"
                     >
-                      {row.id}
+                      {row.title}
                     </TableCell>
-                    <TableCell align="right">{row.title}</TableCell>
-                    <TableCell align="right">{row.author}</TableCell>
+                    <TableCell align="right">{row.authors}</TableCell>
+                    <TableCell align="right">{row.firstPublishYear}</TableCell>
                   </TableRow>
                 );
               })}
@@ -339,7 +351,7 @@ export default function EnhancedTable(props: { rows: Book[] }) {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10]}
           component="div"
           count={props.rows.length}
           rowsPerPage={rowsPerPage}

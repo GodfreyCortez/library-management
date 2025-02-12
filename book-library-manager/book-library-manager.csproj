@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OpenLibrary.NET" Version="0.1.3" />
     <PackageReference Include="RavenDB.Client" Version="7.0.0" />
     <PackageReference Include="TechGems.ViteDotNet" Version="0.1.1" />
   </ItemGroup>
