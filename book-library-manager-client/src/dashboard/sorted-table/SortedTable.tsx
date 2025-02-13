@@ -20,6 +20,7 @@ import Tooltip from "@mui/material/Tooltip";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 import { Book } from "../../types/library/books";
@@ -36,9 +37,9 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   return 0;
 }
 
-type Order = "asc" | "desc";
+type Order = "asc" | "desc" | "";
 
-function getComparator<Key extends keyof Book>(
+function getComparator<Key extends keyof Book | "">(
   order: Order,
   orderBy: Key
 ): (
@@ -78,7 +79,7 @@ const headCells: readonly HeadCell[] = [
   },
 ];
 
-interface EnhancedTableProps {
+interface EnhancedTableHeadProps {
   numSelected: number;
   onRequestSort: (
     event: React.MouseEvent<unknown>,
@@ -90,7 +91,7 @@ interface EnhancedTableProps {
   rowCount: number;
 }
 
-function EnhancedTableHead(props: EnhancedTableProps) {
+function EnhancedTableHead(props: EnhancedTableHeadProps) {
   const {
     onSelectAllClick,
     order,
@@ -113,9 +114,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
           />
         </TableCell>
         {headCells.map((headCell) => (
@@ -123,11 +121,19 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             key={headCell.id}
             align={headCell.numeric ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
+            sortDirection={
+              orderBy === headCell.id ? (order === "" ? false : order) : false
+            }
           >
             <TableSortLabel
               active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
+              direction={
+                orderBy === headCell.id
+                  ? order === ""
+                    ? undefined
+                    : order
+                  : "asc"
+              }
               onClick={createSortHandler(headCell.id)}
             >
               {headCell.label}
@@ -143,8 +149,13 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     </TableHead>
   );
 }
+
+type TooltipActionType = "Add" | "Delete";
+
 interface EnhancedTableToolbarProps {
   numSelected: number;
+  tooltipActionType: TooltipActionType;
+  tooltipAction: () => void;
 }
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   const { numSelected } = props;
@@ -184,11 +195,19 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         </Typography>
       )}
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
+        props.tooltipActionType === "Delete" ? (
+          <Tooltip title="Delete">
+            <IconButton onClick={props.tooltipAction}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip title="Add">
+            <IconButton onClick={props.tooltipAction}>
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        )
       ) : (
         <Tooltip title="Filter list">
           <IconButton>
@@ -199,9 +218,14 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
     </Toolbar>
   );
 }
-export default function EnhancedTable(props: { rows: Book[] }) {
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Book>("title");
+
+export default function EnhancedTable(props: {
+  rows: Book[];
+  tooltipActionType: TooltipActionType;
+  tooltipAction: (selectedItems: string[]) => void;
+}) {
+  const [order, setOrder] = React.useState<Order>("");
+  const [orderBy, setOrderBy] = React.useState<keyof Book | "">("");
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
@@ -211,9 +235,21 @@ export default function EnhancedTable(props: { rows: Book[] }) {
     _: React.MouseEvent<unknown>,
     property: keyof Book
   ) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
+    let newOrder: Order = "";
+    if (order === "") {
+      newOrder = "asc";
+    } else if (order === "asc") {
+      newOrder = "desc";
+    } else {
+      newOrder = "";
+    }
+    setOrder(newOrder);
+
+    if (newOrder === "") {
+      setOrderBy("");
+    } else {
+      setOrderBy(property);
+    }
   };
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,29 +299,46 @@ export default function EnhancedTable(props: { rows: Book[] }) {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - props.rows.length) : 0;
 
-  const visibleRows = React.useMemo(
-    () =>
-      [...props.rows]
-        .map((book) => {
-          return {
-            ...book,
-            authors: book.authors
-              ? StringService.CombineStringAsList(book.authors)
-              : "No Author",
-            authorKeys: book.authorKeys
-              ? StringService.CombineStringAsList(book.authorKeys)
-              : "",
-          };
-        })
-        .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage, props.rows]
-  );
+  const visibleRows = React.useMemo(() => {
+    const mappedRows = [...props.rows].map((book) => {
+      return {
+        ...book,
+        authors:
+          book.authors && book.authors.length > 0
+            ? StringService.CombineStringAsList(book.authors)
+            : "Unknown Author",
+        authorKeys:
+          book.authorKeys && book.authorKeys.length > 0
+            ? StringService.CombineStringAsList(book.authorKeys)
+            : "",
+        firstPublishYear: book.firstPublishYear || "Unknown Publish Year",
+      };
+    });
+
+    /**
+     * Only sort when required and set by the table
+     */
+    if (orderBy != "") {
+      mappedRows.sort(getComparator(order, orderBy));
+    }
+
+    return mappedRows.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+  }, [order, orderBy, page, rowsPerPage, props.rows]);
 
   return (
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          tooltipActionType={props.tooltipActionType}
+          tooltipAction={() => {
+            props.tooltipAction([...selected]);
+            setSelected([]);
+          }}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}

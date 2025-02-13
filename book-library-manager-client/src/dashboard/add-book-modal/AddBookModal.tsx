@@ -1,4 +1,4 @@
-import { Modal, Box, Typography, Autocomplete, TextField } from "@mui/material";
+import { Modal, Box, Autocomplete, TextField } from "@mui/material";
 import { mostPopular100Books } from "../../consts/consts";
 import { CSSProperties, useEffect, useState } from "react";
 import { Book } from "../../types/library/books";
@@ -24,6 +24,7 @@ const searchboxStyle: CSSProperties = {
 export default function AddBookModal(props: {
   open: boolean;
   onClose: () => void;
+  onAddBooks: (selected: string[]) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [foundRows, setFoundRows] = useState<Book[]>([]);
@@ -35,14 +36,16 @@ export default function AddBookModal(props: {
 
     ApiService.searchForBooks(searchQuery).then((booksResponse) => {
       setFoundRows(booksResponse);
-      console.log(booksResponse);
     });
   }, [searchQuery]);
 
   return (
     <Modal
       open={props.open}
-      onClose={props.onClose}
+      onClose={() => {
+        setFoundRows([]);
+        props.onClose();
+      }}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -54,7 +57,11 @@ export default function AddBookModal(props: {
           onChange={(_, value) => setSearchQuery(value)}
           renderInput={(params) => <TextField {...params} inputMode="text" />}
         />
-        <SortedTable rows={foundRows} />
+        <SortedTable
+          rows={foundRows}
+          tooltipActionType={"Add"}
+          tooltipAction={props.onAddBooks}
+        />
       </Box>
     </Modal>
   );

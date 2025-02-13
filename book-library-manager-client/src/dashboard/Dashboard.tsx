@@ -16,23 +16,41 @@ const buttonStyle: CSSProperties = {
 export default function Dashboard() {
   const [books, setBooks] = useState<Book[]>([]);
 
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   useEffect(() => {
     ApiService.getAllBooks().then((booksResponse) => {
       setBooks(booksResponse);
     });
-  }, []);
+  }, [open]);
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleAddBooks = (selected: string[]) => {
+    const addBookPromises = selected.map((bookId) =>
+      ApiService.addBook(bookId)
+    );
+
+    Promise.all(addBookPromises).then(() => {
+      setOpen(false);
+    });
+  };
 
   return (
     <StyledEngineProvider injectFirst>
       <Button style={buttonStyle} variant="contained" onClick={handleOpen}>
         Add Book
       </Button>
-      <AddBookModal open={open} onClose={handleClose} />
-      <SortedTable rows={books} />
+      <AddBookModal
+        open={open}
+        onClose={handleClose}
+        onAddBooks={handleAddBooks}
+      />
+      <SortedTable
+        rows={books}
+        tooltipActionType={"Delete"}
+        tooltipAction={(selected: string[]) => console.log(selected)}
+      />
     </StyledEngineProvider>
   );
 }

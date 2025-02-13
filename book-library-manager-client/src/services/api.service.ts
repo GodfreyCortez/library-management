@@ -57,4 +57,32 @@ export class ApiService {
 
     return [];
   }
+
+  /**
+   * Adds books to the library
+   */
+  public static async addBook(bookId: string): Promise<void> {
+    const resource = "/books";
+    const endpoint = this.baseUrl + resource;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: bookId,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+    } catch (e) {
+      console.error(
+        `[${this.name}]: Unable to add book from ${endpoint} with id ${bookId}`,
+        e
+      );
+    }
+  }
 }
