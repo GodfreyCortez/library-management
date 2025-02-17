@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 # Mounted volume from RavenDB
 db-storage
 ravendb-license
+
+# Output for backend
+**/out/**

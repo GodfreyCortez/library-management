@@ -15,6 +15,7 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.WithOrigins("http://localhost:5174");
+                          policy.WithOrigins("http://frontend:5174");
                           policy.WithHeaders(["Content-Type"]);
                           policy.AllowAnyMethod();
                       });
@@ -42,6 +43,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-SeedData.Initialize(RavenDbContext.Store);
 OpenLibraryService olservice = new OpenLibraryService();
 app.Run();

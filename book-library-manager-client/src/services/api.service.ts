@@ -5,7 +5,7 @@ import { Book } from "../types/library/books";
  * to retrieve, create and manage the book library
  */
 export class ApiService {
-  public static baseUrl = "https://localhost:7024/api";
+  public static baseUrl = "http://localhost:5100/api";
 
   /**
    * Retrieves all the books from the application
