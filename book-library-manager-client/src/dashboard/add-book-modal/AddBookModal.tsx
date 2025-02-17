@@ -30,7 +30,7 @@ export default function AddBookModal(props: {
   const [foundRows, setFoundRows] = useState<Book[]>([]);
 
   useEffect(() => {
-    if (searchQuery === null) {
+    if (searchQuery === null || searchQuery.length === 0) {
       return;
     }
 

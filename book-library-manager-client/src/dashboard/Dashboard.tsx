@@ -36,6 +36,24 @@ export default function Dashboard() {
     });
   };
 
+  const handleDelete = (selected: string[]) => {
+    /**
+     * After deleting all the books,
+     * then refresh with the updated list from the DB
+     */
+    const deletePromises = selected.map((bookId) =>
+      ApiService.deleteBook(bookId)
+    );
+
+    Promise.all(deletePromises)
+      .then(() => {
+        return ApiService.getAllBooks();
+      })
+      .then((booksResponse) => {
+        setBooks(booksResponse);
+      });
+  };
+
   return (
     <StyledEngineProvider injectFirst>
       <Button style={buttonStyle} variant="contained" onClick={handleOpen}>
@@ -49,7 +67,7 @@ export default function Dashboard() {
       <SortedTable
         rows={books}
         tooltipActionType={"Delete"}
-        tooltipAction={(selected: string[]) => console.log(selected)}
+        tooltipAction={handleDelete}
       />
     </StyledEngineProvider>
   );

@@ -32,4 +32,25 @@ public class BooksService
         }
 
     }
+
+    public async Task<Book> GetBook(BookIdentifier bookId)
+    {
+        using (IAsyncDocumentSession session = RavenDbContext.Store.OpenAsyncSession())
+        {
+            var book = await session.LoadAsync<Book>($"Books/{bookId.Id}");
+
+            return book;
+        }
+    }
+
+    public async Task DeleteBook(BookIdentifier bookId)
+    {
+        using (IAsyncDocumentSession session = RavenDbContext.Store.OpenAsyncSession())
+        {
+            var book = await session.LoadAsync<Book>($"{bookId.Id}");
+
+            session.Delete(book);
+            await session.SaveChangesAsync();
+        }
+    }
 }

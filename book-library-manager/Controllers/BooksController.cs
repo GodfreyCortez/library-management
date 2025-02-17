@@ -40,8 +40,12 @@ public class BooksController : ControllerBase
     }
 
     /**
-    Given a OpenLibrary ID and a cover ID, we will 
+    Given a OpenLibrary ID, we will 
     add a book to the database
+
+    In the future, we will want to support including cover IDs.
+    This will query the OpenLibrary API for an image which will allow for us to 
+    end up displaying the cover images of the books the user has in their library
     */
     [HttpPost]
     public async Task<IActionResult> Post(BookIdentifier bookIdentifier)
@@ -56,5 +60,16 @@ public class BooksController : ControllerBase
         await _booksService.CreateBook(newBook);
 
         return CreatedAtAction(nameof(Get), new { Id = newBook.Id });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task Delete(string id)
+    {
+        var book = new BookIdentifier()
+        {
+            Id = id
+        };
+
+        await _booksService.DeleteBook(book);
     }
 }

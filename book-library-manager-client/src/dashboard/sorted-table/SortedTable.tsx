@@ -58,7 +58,7 @@ interface HeadCell {
   numeric: boolean;
 }
 
-const headCells: readonly HeadCell[] = [
+const headCells: HeadCell[] = [
   {
     id: "title",
     numeric: false,
@@ -89,6 +89,7 @@ interface EnhancedTableHeadProps {
   order: Order;
   orderBy: string;
   rowCount: number;
+  headCells: HeadCell[];
 }
 
 function EnhancedTableHead(props: EnhancedTableHeadProps) {
@@ -116,7 +117,7 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
             onChange={onSelectAllClick}
           />
         </TableCell>
-        {headCells.map((headCell) => (
+        {props.headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
             align={headCell.numeric ? "right" : "left"}
@@ -328,6 +329,8 @@ export default function EnhancedTable(props: {
     );
   }, [order, orderBy, page, rowsPerPage, props.rows]);
 
+  const tableHeaders = [...headCells];
+
   return (
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
@@ -352,6 +355,7 @@ export default function EnhancedTable(props: {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={props.rows.length}
+              headCells={tableHeaders}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
@@ -386,8 +390,8 @@ export default function EnhancedTable(props: {
                     >
                       {row.title}
                     </TableCell>
-                    <TableCell align="right">{row.authors}</TableCell>
-                    <TableCell align="right">{row.firstPublishYear}</TableCell>
+                    <TableCell>{row.authors}</TableCell>
+                    <TableCell>{row.firstPublishYear}</TableCell>
                   </TableRow>
                 );
               })}

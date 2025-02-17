@@ -85,4 +85,24 @@ export class ApiService {
       );
     }
   }
+
+  public static async deleteBook(bookId: string): Promise<void> {
+    const resource = `/books/${bookId}`;
+    const endpoint = this.baseUrl + resource;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+    } catch (e) {
+      console.error(
+        `[${this.name}]: Unable to add book from ${endpoint} with id ${bookId}`,
+        e
+      );
+    }
+  }
 }
