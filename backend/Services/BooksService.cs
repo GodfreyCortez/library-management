@@ -10,6 +10,8 @@ public class BooksService
 {
     public async Task<List<Book>> GetBooks()
     {
+        RavenDbContext.CreateDatabaseIfNotExists();
+
         List<Book> allBooks = [];
 
         using (IAsyncDocumentSession session = RavenDbContext.Store.OpenAsyncSession())

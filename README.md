@@ -12,7 +12,7 @@ An app to manage books you've read, want to read, and notes you may have on them
 - Docker
 
 ## Installing and Running (Dockerized backend and backend)
-If following these steps, you should only need Docker installed. To start all services, run `docker compose up` 
+If following these steps, you should only need Docker installed. To start all services, run `docker compose up`
 
 You should be able to access the application at `http://localhost:5174` once it completes building.
 
