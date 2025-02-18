@@ -2,10 +2,9 @@ version: '3'
 
 services:
   ravendb:
-    network_mode: "host"
     build:
       context: .
-      dockerfile: ./book-library-manager-database/Dockerfile
+      dockerfile: ./database/Dockerfile
     ports:
       - "8080:8080"
       - "38888:38888"
@@ -14,17 +13,15 @@ services:
     volumes:
       - ./db-storage:/var/lib/ravendb/data/Databases
   backend:
-    network_mode: "host"
     build: 
-      context: ./book-library-manager
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "7024:7024"
       - "5100:5100"
   frontend:
-    network_mode: "host"
     build:
-      context: ./book-library-manager-client
+      context: ./client
       dockerfile: Dockerfile
     ports:
       - "5174:5174"
